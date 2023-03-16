@@ -16,6 +16,7 @@
         android:layout_height="match_parent">
 
         <ImageView
+            imageUrl="@{viewModel.imageUrl}"
             android:id="@+id/fitness_photo"
             tools:background="@color/purple_200"
             app:layout_constraintTop_toTopOf="parent"

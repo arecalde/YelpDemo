@@ -62,9 +62,7 @@ class HomeFragment : Fragment() {
             val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment?
             mapFragment?.getMapAsync { googleMap ->
                 viewModel.callBusinesses(it.toLatLng())
-                map = googleMap
-                val zoomLevel = 8f //This goes up to 21
-                map?.moveCamera(CameraUpdateFactory.newLatLngZoom(it.toLatLng(), zoomLevel))
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(it.toLatLng(), 8f))
             }
         }
 
@@ -87,7 +85,11 @@ class HomeFragment : Fragment() {
                             .position(latLng)
                     )
                     business.goToDetails.observeEvent(viewLifecycleOwner) {
-                        val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(Gson().toJson(business))
+                        val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(
+                            business.url.orEmpty(),
+                            business.imageUrl.orEmpty()
+                        )
+                        action.location = business.coordinates?.toLatLng() ?: return@observeEvent
                         findNavController().navigate(action)
                     }
                 }
