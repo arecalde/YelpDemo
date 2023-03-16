@@ -22,10 +22,20 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/map_frame"
             android:layout_width="0dp"
-            android:layout_height="0dp"
+            tools:src="@drawable/ic_launcher_background"
+            android:layout_height="wrap_content"
             android:contentDescription="@string/thumbnail" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="#80000000"
+            android:text="@{viewModel.name}"
+            tools:text="Place name"
+            android:textAlignment="center"
+            android:textColor="@color/white"
+            app:layout_constraintBottom_toBottomOf="@id/fitness_photo" />
 
         <FrameLayout
             android:id="@+id/map_frame"
@@ -35,12 +45,14 @@
             app:layout_constraintEnd_toEndOf="parent"
             android:layout_width="0dp"
             android:layout_height="0dp">
+
             <fragment
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:id="@+id/mapView"
                 android:contentDescription="@string/map"
                 android:name="com.google.android.gms.maps.SupportMapFragment"/>
+
         </FrameLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

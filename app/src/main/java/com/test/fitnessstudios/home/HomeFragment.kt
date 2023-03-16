@@ -87,7 +87,8 @@ class HomeFragment : Fragment() {
                     business.goToDetails.observeEvent(viewLifecycleOwner) {
                         val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(
                             business.url.orEmpty(),
-                            business.imageUrl.orEmpty()
+                            business.imageUrl.orEmpty(),
+                            business.name.orEmpty()
                         )
                         action.location = business.coordinates?.toLatLng() ?: return@observeEvent
                         findNavController().navigate(action)

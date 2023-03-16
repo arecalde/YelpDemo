@@ -14,7 +14,7 @@ import com.test.fitnessstudios.network.googleAPIKey
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-class DetailViewModel(imageUrl: String, application: Application) : AndroidViewModel(application) {
+class DetailViewModel(val name: String, imageUrl: String, application: Application) : AndroidViewModel(application) {
     val navigationResult: MutableLiveData<NavigationResult> = MutableLiveData()
     val imageUrl = MutableLiveData(imageUrl)
     suspend fun getNavigationRoute(destination: LatLng, origin: LatLng) {
@@ -36,11 +36,12 @@ class DetailViewModel(imageUrl: String, application: Application) : AndroidViewM
 
 class DetailViewModelFactory(
     private val application: Application,
-    private val imageUrl: String
+    private val imageUrl: String,
+    private val name: String
 ): ViewModelProvider.Factory {
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return DetailViewModel(imageUrl, application) as T
+        return DetailViewModel(name, imageUrl, application) as T
     }
 }
 

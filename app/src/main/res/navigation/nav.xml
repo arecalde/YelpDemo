@@ -30,5 +30,8 @@
             app:argType="com.google.android.gms.maps.model.LatLng"
             app:nullable="true"
             android:defaultValue="@null" />
+        <argument
+            android:name="name"
+            app:argType="string" />
     </fragment>
 </navigation>

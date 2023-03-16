@@ -50,7 +50,7 @@ class DetailFragment : Fragment() {
     private val args: DetailFragmentArgs by navArgs()
 
     private val viewModel: DetailViewModel by viewModels {
-        DetailViewModelFactory(requireActivity().application, args.imageUrl)
+        DetailViewModelFactory(requireActivity().application, args.imageUrl, args.name)
     }
 
     private var fusedLocationClient: FusedLocationProviderClient? = null
