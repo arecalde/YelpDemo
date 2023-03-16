@@ -16,6 +16,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
@@ -26,20 +27,19 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
+import com.google.gson.Gson
 import com.test.fitnessstudios.R
 import com.test.fitnessstudios.databinding.BusinessItemBinding
 import com.test.fitnessstudios.databinding.HomeFragmentBinding
 import com.test.fitnessstudios.helpers.ItemAdapter
+import com.test.fitnessstudios.helpers.LocationHelper
+import com.test.fitnessstudios.helpers.PERMISSION_REQUEST
 import com.test.fitnessstudios.model.Businesses
 
-private const val PERMISSION_REQUEST = 10
 class HomeFragment : Fragment() {
     private val viewModel: HomeViewModel by viewModels()
     private var map : GoogleMap? = null
     private var fusedLocationClient: FusedLocationProviderClient? = null
-
-    private var permissions = arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION)
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -50,10 +50,12 @@ class HomeFragment : Fragment() {
         binding.lifecycleOwner = viewLifecycleOwner
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(requireActivity())
 
-        if (checkPermission(permissions)) {
-            getLocation()
+        if (LocationHelper.checkPermission(context)) {
+            LocationHelper.getLocation(context) {
+                viewModel.updateLocation(it)
+            }
         }else{
-            requestPermissions(permissions, PERMISSION_REQUEST)
+            requestPermissions(LocationHelper.permissions, PERMISSION_REQUEST)
         }
 
         viewModel.locationLiveData.observe(viewLifecycleOwner) {
@@ -84,6 +86,10 @@ class HomeFragment : Fragment() {
                             .title(business.name)
                             .position(latLng)
                     )
+                    business.goToDetails.observeEvent(viewLifecycleOwner) {
+                        val action = HomeFragmentDirections.actionHomeFragmentToDetailFragment(Gson().toJson(business))
+                        findNavController().navigate(action)
+                    }
                 }
             }
         }
@@ -111,37 +117,8 @@ class HomeFragment : Fragment() {
         return binding.root
     }
 
-    @SuppressLint("MissingPermission")
-    private fun getLocation() {
-        val locationManager = context?.getSystemService(Context.LOCATION_SERVICE) as? LocationManager ?: return
-        val hasGps = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-        val hasNetwork = locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
 
-        if (hasGps || hasNetwork) {
-            if (hasGps) {
-                val localGpsLocation = locationManager.getLastKnownLocation(LocationManager.GPS_PROVIDER)
-                localGpsLocation?.let {
-                    viewModel.updateLocation(it)
-                }
-            } else if (hasNetwork) {
-                val localNetworkLocation = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-                localNetworkLocation?.let {
-                    viewModel.updateLocation(it)
-                }
-            }
-        } else {
-            startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
-        }
-    }
 
-    private fun checkPermission(permissionArray: Array<String>): Boolean {
-        var allSuccess = true
-        for (i in permissionArray.indices) {
-            if (context?.checkCallingOrSelfPermission(permissionArray[i]) == PackageManager.PERMISSION_DENIED)
-                allSuccess = false
-        }
-        return allSuccess
-    }
     //checks if the user has given permission to have their location recorder in the db
 
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
@@ -155,11 +132,11 @@ class HomeFragment : Fragment() {
                         Toast.makeText(context, "Go to settings and enable the permission", Toast.LENGTH_SHORT).show()
                     }
                 } else {
-                    getLocation()
+                    LocationHelper.getLocation(context) {
+                        viewModel.updateLocation(it)
+                    }
                 }
             }
-
-
         }
     }
 }

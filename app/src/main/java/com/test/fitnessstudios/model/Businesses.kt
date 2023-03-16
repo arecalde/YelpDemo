@@ -1,6 +1,7 @@
 package com.test.fitnessstudios.model
 
 import com.google.gson.annotations.SerializedName
+import com.test.fitnessstudios.helpers.Event
 import java.math.RoundingMode
 import java.text.DecimalFormat
 
@@ -23,6 +24,11 @@ class Businesses (
     @SerializedName("distance"      ) var distance     : Double               = 0.0
 
 ) {
+    val goToDetails = Event(Unit)
+
+    fun launchDetailsEvent() {
+        goToDetails.raiseEvent(Unit)
+    }
     fun getSubtitle(): String {
         val df = DecimalFormat("#.##")
         df.roundingMode = RoundingMode.DOWN
