@@ -1,9 +1,12 @@
 package com.test.fitnessstudios.home
 
+import android.location.Location
 import android.util.Log
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.gms.maps.model.LatLng
+import com.test.fitnessstudios.model.Businesses
 import com.test.fitnessstudios.network.RetrofitHelper
 import com.test.fitnessstudios.network.YelpApi
 import kotlinx.coroutines.Dispatchers
@@ -12,9 +15,14 @@ import kotlinx.coroutines.launch
 class HomeViewModel : ViewModel() {
     val loading = MutableLiveData(true)
     val currentTab = MutableLiveData(HomeTabs.MAP)
-
+    val locationLiveData: MutableLiveData<Location> = MutableLiveData()
+    val listOfBusinesses: MutableLiveData<List<Businesses>> = MutableLiveData()
     fun changeTabToMaps() {
         currentTab.value = HomeTabs.MAP
+    }
+
+    fun updateLocation(location: Location) {
+        locationLiveData.value = location
     }
 
     fun changeTabToList() {
@@ -22,13 +30,18 @@ class HomeViewModel : ViewModel() {
     }
 
     init {
+
+    }
+
+    fun callBusinesses(location: LatLng) {
         viewModelScope.launch(Dispatchers.IO) {
             val apiService = RetrofitHelper.getInstance().create(YelpApi::class.java)
             val call = apiService.getBusinesses(
                 mapOf(
                     "sort_by" to "best_match",
-                    "limit" to "5",
-                    "location" to "95618",
+                    "limit" to "20",
+                    "latitude" to "${location.latitude}",
+                    "longitude" to "${location.longitude}",
                     "term" to "Fitness"
                 )
             )
@@ -36,6 +49,8 @@ class HomeViewModel : ViewModel() {
             businesses.forEach {
                 Log.i("YelpDemo", "$it")
             }
+
+            listOfBusinesses.postValue(businesses)
             loading.postValue(false)
         }
     }
