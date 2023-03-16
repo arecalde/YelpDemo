@@ -1,9 +1,10 @@
 package com.test.fitnessstudios.model
 
 import com.google.gson.annotations.SerializedName
+import java.math.RoundingMode
+import java.text.DecimalFormat
 
-
-data class Businesses (
+class Businesses (
 
     @SerializedName("id"            ) var id           : String?               = null,
     @SerializedName("alias"         ) var alias        : String?               = null,
@@ -19,6 +20,13 @@ data class Businesses (
     @SerializedName("location"      ) var location     : Location?             = Location(),
     @SerializedName("phone"         ) var phone        : String?               = null,
     @SerializedName("display_phone" ) var displayPhone : String?               = null,
-    @SerializedName("distance"      ) var distance     : Double?               = null
+    @SerializedName("distance"      ) var distance     : Double               = 0.0
 
-)
+) {
+    fun getSubtitle(): String {
+        val df = DecimalFormat("#.##")
+        df.roundingMode = RoundingMode.DOWN
+        val roundedDistance = df.format(distance/1609.0)
+        return "$$$$ · $roundedDistance mi"
+    }
+}

@@ -2,9 +2,7 @@ package com.test.fitnessstudios.home
 
 import android.location.Location
 import android.util.Log
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.*
 import com.google.android.gms.maps.model.LatLng
 import com.test.fitnessstudios.model.Businesses
 import com.test.fitnessstudios.network.RetrofitHelper
@@ -15,10 +13,17 @@ import kotlinx.coroutines.launch
 class HomeViewModel : ViewModel() {
     val loading = MutableLiveData(true)
     val currentTab = MutableLiveData(HomeTabs.MAP)
+    val mapIsVisible = currentTab.map { 
+        it.equals(HomeTabs.MAP)
+    }
+
     val locationLiveData: MutableLiveData<Location> = MutableLiveData()
     val listOfBusinesses: MutableLiveData<List<Businesses>> = MutableLiveData()
+
     fun changeTabToMaps() {
-        currentTab.value = HomeTabs.MAP
+        if (currentTab.value == HomeTabs.LIST) {
+            currentTab.value = HomeTabs.MAP
+        }
     }
 
     fun updateLocation(location: Location) {
@@ -26,7 +31,9 @@ class HomeViewModel : ViewModel() {
     }
 
     fun changeTabToList() {
-        currentTab.value = HomeTabs.LIST
+        if (currentTab.value == HomeTabs.MAP) {
+            currentTab.value = HomeTabs.LIST
+        }
     }
 
     init {

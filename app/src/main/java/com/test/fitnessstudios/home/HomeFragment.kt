@@ -1,6 +1,5 @@
 package com.test.fitnessstudios.home
 
-import android.provider.Settings
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.Context
@@ -8,33 +7,30 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
-import android.os.Build
-import androidx.lifecycle.ViewModelProvider
 import android.os.Bundle
+import android.provider.Settings
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.core.app.ActivityCompat
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.lifecycleScope
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
-import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayout.OnTabSelectedListener
 import com.test.fitnessstudios.R
+import com.test.fitnessstudios.databinding.BusinessItemBinding
 import com.test.fitnessstudios.databinding.HomeFragmentBinding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.test.fitnessstudios.helpers.ItemAdapter
+import com.test.fitnessstudios.model.Businesses
 
 private const val PERMISSION_REQUEST = 10
 class HomeFragment : Fragment() {
@@ -65,12 +61,20 @@ class HomeFragment : Fragment() {
             mapFragment?.getMapAsync { googleMap ->
                 viewModel.callBusinesses(it.toLatLng())
                 map = googleMap
-                val zoomLevel = 8f; //This goes up to 21
+                val zoomLevel = 8f //This goes up to 21
                 map?.moveCamera(CameraUpdateFactory.newLatLngZoom(it.toLatLng(), zoomLevel))
             }
         }
 
         viewModel.listOfBusinesses.observe(viewLifecycleOwner) {
+            binding.businessList.adapter = ItemAdapter<Businesses, BusinessItemBinding>(
+                it,
+                viewLifecycleOwner,
+                R.layout.business_item
+            ) { business, businessItemBinding ->
+                businessItemBinding.business = business
+            }
+
             val mapFragment = childFragmentManager.findFragmentById(R.id.mapView) as SupportMapFragment?
             mapFragment?.getMapAsync { googleMap ->
                 it.forEach { business ->
@@ -84,14 +88,15 @@ class HomeFragment : Fragment() {
             }
         }
 
+        val mapTab = binding.tabLayout.newTab().setText(R.string.map)
+        val listTab = binding.tabLayout.newTab().setText(R.string.list)
 
-        viewModel.currentTab.observe(viewLifecycleOwner) {
-            Log.i("YelpDemo", "$it")
-        }
+        binding.tabLayout.addTab(mapTab)
+        binding.tabLayout.addTab(listTab)
 
         binding.tabLayout.addOnTabSelectedListener(object : OnTabSelectedListener {
             override fun onTabSelected(tab: TabLayout.Tab?) {
-                if (tab?.text == "Map") {
+                if (tab?.text == "List") {
                     viewModel.changeTabToList()
                 } else {
                     viewModel.changeTabToMaps()
@@ -128,7 +133,6 @@ class HomeFragment : Fragment() {
             startActivity(Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS))
         }
     }
-    //this function will set latitude and longitude equal to the user's location
 
     private fun checkPermission(permissionArray: Array<String>): Boolean {
         var allSuccess = true
@@ -150,7 +154,7 @@ class HomeFragment : Fragment() {
                     } else {
                         Toast.makeText(context, "Go to settings and enable the permission", Toast.LENGTH_SHORT).show()
                     }
-                }else{
+                } else {
                     getLocation()
                 }
             }
@@ -158,13 +162,6 @@ class HomeFragment : Fragment() {
 
         }
     }
-    class HomeLocationListener(locationRecievedCallback: (Location) -> Unit): LocationListener {
-        override fun onLocationChanged(location: Location) {
-
-        }
-    }
-
-
 }
 
 fun Location.toLatLng(): LatLng {
