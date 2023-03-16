@@ -6,19 +6,9 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitHelper {
-/*
-OkHttpClient client = new OkHttpClient.Builder().addInterceptor(new Interceptor() {
-      @Override
-      public Response intercept(Chain chain) throws IOException {
-        Request newRequest  = chain.request().newBuilder()
-            .addHeader("Authorization", "Bearer " + token)
-            .build();
-        return chain.proceed(newRequest);
-      }
-* */
-    val client = OkHttpClient.Builder().addInterceptor {
+    private val client: OkHttpClient = OkHttpClient.Builder().addInterceptor {
         val newRequest = it.request().newBuilder()
-            .addHeader("Authorization", "Bearer " + yelpAPIKey)
+            .addHeader("Authorization", "Bearer $yelpAPIKey")
             .build()
         it.proceed(newRequest)
     }.build()

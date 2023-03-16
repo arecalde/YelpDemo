@@ -1,7 +1,12 @@
-apply plugin: 'com.android.application'
-apply plugin: 'kotlin-android'
-apply plugin: "androidx.navigation.safeargs"
-apply plugin: 'kotlin-kapt'
+plugins {
+    id 'com.android.application'
+    id 'kotlin-android'
+    id 'androidx.navigation.safeargs'
+    id 'kotlin-kapt'
+
+    // Add secrets-gradle-plugin here
+    id 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+}
 
 android {
     compileSdk 33
@@ -32,9 +37,14 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    buildFeatures {
+        viewBinding true
+    }
 }
 
 dependencies {
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+
 // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 // GSON
